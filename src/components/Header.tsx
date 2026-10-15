@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { APP_URL, SITE_URL } from "@/lib/site";
+import { APP_URL, SIGNUP_URL, SITE_URL, TRIAL_DAYS } from "@/lib/site";
 
 export default function Header() {
   return (
@@ -16,11 +16,14 @@ export default function Header() {
           <a href={SITE_URL} className="hidden text-[14px] font-medium text-ink-soft transition hover:text-brand-700 sm:inline">
             Conheça o sistema
           </a>
+          <a href={APP_URL} className="hidden text-[14px] font-medium text-ink-soft transition hover:text-brand-700 sm:inline">
+            Entrar
+          </a>
           <a
-            href={APP_URL}
+            href={SIGNUP_URL}
             className="rounded-xl bg-brand-500 px-4 py-2 text-[14px] font-semibold text-white transition hover:bg-brand-700"
           >
-            Entrar
+            Testar {TRIAL_DAYS} dias grátis
           </a>
         </nav>
       </div>

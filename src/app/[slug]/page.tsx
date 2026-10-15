@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import PostCard from "@/components/PostCard";
 import { formatDate, getPost, getSlugs } from "@/lib/api";
-import { APP_URL, BLOG_URL, SITE_URL } from "@/lib/site";
+import { APP_URL, BLOG_URL, SIGNUP_URL, SITE_URL, TRIAL_DAYS } from "@/lib/site";
 
 export async function generateStaticParams() {
   const slugs = await getSlugs();
@@ -105,16 +105,19 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         )}
 
         <aside className="mt-14 rounded-2xl bg-brand-900 p-8 text-white">
-          <h2 className="text-[22px] font-bold">Organize a sua empresa com o Controle Dois</h2>
+          <h2 className="text-[22px] font-bold">Teste o Controle Dois por {TRIAL_DAYS} dias grátis</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-brand-100">
-            Vendas, financeiro, notas fiscais, estoque e PDV em um só sistema, com a versão certa para o seu segmento.
+            Crie a conta em 2 minutos, escolha o seu segmento e comece a usar. Sem cartão de crédito.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <a href={SITE_URL} className="rounded-xl bg-white px-5 py-3 text-[14.5px] font-semibold text-brand-700 hover:bg-brand-100">
+            <a href={SIGNUP_URL} className="rounded-xl bg-white px-5 py-3 text-[14.5px] font-semibold text-brand-700 hover:bg-brand-100">
+              Criar conta grátis
+            </a>
+            <a href={SITE_URL} className="rounded-xl border border-white/30 px-5 py-3 text-[14.5px] font-semibold text-white hover:bg-white/10">
               Conheça o sistema
             </a>
-            <a href={APP_URL} className="rounded-xl border border-white/30 px-5 py-3 text-[14.5px] font-semibold text-white hover:bg-white/10">
-              Entrar
+            <a href={APP_URL} className="rounded-xl px-5 py-3 text-[14.5px] font-semibold text-brand-100 hover:text-white">
+              Já sou cliente
             </a>
           </div>
         </aside>

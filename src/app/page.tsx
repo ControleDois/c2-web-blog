@@ -1,69 +1,128 @@
-import Image from "next/image";
+import Link from "next/link";
+import PostCard from "@/components/PostCard";
+import { getCategories, getPosts } from "@/lib/api";
 
-export default function Home() {
+interface HomeProps {
+  searchParams: Promise<{ categoria?: string; pagina?: string; busca?: string }>;
+}
+
+function buildHref(params: { categoria?: string; pagina?: number; busca?: string }) {
+  const query = new URLSearchParams();
+  if (params.categoria) query.set("categoria", params.categoria);
+  if (params.busca) query.set("busca", params.busca);
+  if (params.pagina && params.pagina > 1) query.set("pagina", String(params.pagina));
+  const text = query.toString();
+  return text ? `/?${text}` : "/";
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const { categoria, pagina, busca } = await searchParams;
+  const page = Math.max(1, Number(pagina) || 1);
+  const [posts, categories] = await Promise.all([
+    getPosts({ page, category: categoria, search: busca }),
+    getCategories(),
+  ]);
+  const { current_page, last_page } = posts.meta;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <>
+      <section className="bg-gradient-to-b from-brand-100 to-white">
+        <div className="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+          <p className="text-[12.5px] font-bold uppercase tracking-widest text-brand-500">Blog</p>
+          <h1 className="mt-2 max-w-2xl text-[34px] font-bold leading-tight tracking-tight text-ink sm:text-[46px]">
+            Gestão, fiscal e dicas para o seu negócio
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4 max-w-xl text-[16.5px] leading-relaxed text-ink-soft">
+            Conteúdo do time do Controle Dois sobre vendas, financeiro, notas fiscais e novidades do sistema.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+
+          <form action="/" className="mt-8 flex max-w-md gap-2">
+            {categoria && <input type="hidden" name="categoria" value={categoria} />}
+            <input
+              type="search"
+              name="busca"
+              defaultValue={busca}
+              placeholder="Buscar artigos"
+              className="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-3 text-[14.5px] text-ink placeholder:text-muted focus:border-brand-300 focus:outline-none"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <button className="rounded-xl bg-brand-500 px-5 py-3 text-[14.5px] font-semibold text-white transition hover:bg-brand-700">
+              Buscar
+            </button>
+          </form>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-12">
+        {categories.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            <Link
+              href={buildHref({ busca })}
+              className={`rounded-full px-4 py-1.5 text-[13.5px] font-semibold transition ${
+                !categoria ? "bg-brand-500 text-white" : "bg-brand-100 text-brand-700 hover:bg-brand-300/40"
+              }`}
+            >
+              Todos
+            </Link>
+            {categories.map((item) => (
+              <Link
+                key={item.category}
+                href={buildHref({ categoria: item.category, busca })}
+                className={`rounded-full px-4 py-1.5 text-[13.5px] font-semibold transition ${
+                  categoria === item.category ? "bg-brand-500 text-white" : "bg-brand-100 text-brand-700 hover:bg-brand-300/40"
+                }`}
+              >
+                {item.category}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {posts.data.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-line px-6 py-20 text-center">
+            <p className="text-[17px] font-bold text-ink">
+              {categoria || busca ? "Nenhum artigo encontrado" : "Os primeiros artigos estão chegando"}
+            </p>
+            <p className="mt-2 text-[14.5px] text-ink-soft">
+              {categoria || busca ? "Tente outra busca ou veja todos os artigos." : "Volte em breve para ler as novidades."}
+            </p>
+            {(categoria || busca) && (
+              <Link href="/" className="mt-5 inline-block text-[14px] font-semibold text-brand-700 hover:underline">
+                Ver todos os artigos
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.data.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+
+        {last_page > 1 && (
+          <nav className="mt-12 flex items-center justify-center gap-3" aria-label="Paginação">
+            {current_page > 1 && (
+              <Link
+                href={buildHref({ categoria, busca, pagina: current_page - 1 })}
+                className="rounded-xl border border-line px-4 py-2 text-[14px] font-semibold text-ink hover:border-brand-300"
+              >
+                Anterior
+              </Link>
+            )}
+            <span className="text-[13.5px] text-ink-soft">
+              Página {current_page} de {last_page}
+            </span>
+            {current_page < last_page && (
+              <Link
+                href={buildHref({ categoria, busca, pagina: current_page + 1 })}
+                className="rounded-xl border border-line px-4 py-2 text-[14px] font-semibold text-ink hover:border-brand-300"
+              >
+                Próxima
+              </Link>
+            )}
+          </nav>
+        )}
+      </section>
+    </>
   );
 }

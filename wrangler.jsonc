@@ -1,0 +1,12 @@
+// Hospedagem no Cloudflare: o OpenNext (`opennextjs-cloudflare build`) transforma o build do
+// Next.js num Worker em `.open-next/worker.js` e os arquivos estáticos em `.open-next/assets`.
+{
+  "name": "controledois-blog",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+}
